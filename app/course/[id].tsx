@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 
 import { Screen } from '@/components/ui/screen';
 import { Card } from '@/components/ui/card';
+import { PrimaryButton } from '@/components/ui/button';
 import { webHiddenScrollbarStyle } from '@/components/ui/scrollbar-hidden';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressGopher } from '@/components/ui/progress-gopher';
@@ -13,31 +14,40 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 import { getMockCourseById } from '@/lib/mocks/courses';
 import {
   getCompletedTests,
-  getCourseNote,
   setCompletedTests,
-  setCourseNote,
   setLastVisitedCourseId,
   setLastTestsCourseId,
 } from '@/lib/mocks/course-progress';
+import { listNotes, type CourseNote } from '@/lib/db/notes';
 
 export default function CourseDetails() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const courseId = Number(id);
   const border = useThemeColor({}, 'border');
-  const textColor = useThemeColor({}, 'text');
   const mutedColor = useThemeColor({}, 'muted');
   const cardBg = useThemeColor({}, 'card');
   const course = useMemo(() => getMockCourseById(courseId), [courseId]);
   const [completedTests, setCompletedTestsState] = useState<string[]>([]);
-  const [note, setNote] = useState('');
+  const [courseNotes, setCourseNotes] = useState<CourseNote[]>([]);
+
+  const reloadNotes = useCallback(async () => {
+    if (!Number.isFinite(courseId)) return;
+    setCourseNotes(await listNotes(courseId));
+  }, [courseId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void reloadNotes();
+    }, [reloadNotes])
+  );
 
   useEffect(() => {
     if (!Number.isFinite(courseId)) return;
     (async () => {
-      const [tests, savedNote] = await Promise.all([getCompletedTests(courseId), getCourseNote(courseId)]);
+      const tests = await getCompletedTests(courseId);
       setCompletedTestsState(tests);
-      setNote(savedNote);
       await setLastVisitedCourseId(courseId);
     })();
   }, [courseId]);
@@ -48,18 +58,21 @@ export default function CourseDetails() {
     return Math.round((completedTests.length / course.tests.length) * 100);
   }, [completedTests.length, course]);
 
+  const formatUpdatedAt = useCallback(
+    (ms: number) => {
+      const locale = i18n.language?.startsWith('ru') ? 'ru-RU' : 'en-US';
+      return new Date(ms).toLocaleString(locale);
+    },
+    [i18n.language]
+  );
+
   const toggleTest = async (testId: string) => {
     const next = completedTests.includes(testId)
-      ? completedTests.filter((id) => id !== testId)
+      ? completedTests.filter((tid) => tid !== testId)
       : [...completedTests, testId];
     setCompletedTestsState(next);
     await setCompletedTests(courseId, next);
     await setLastTestsCourseId(courseId);
-  };
-
-  const saveNote = async (value: string) => {
-    setNote(value);
-    await setCourseNote(courseId, value);
   };
 
   return (
@@ -106,22 +119,38 @@ export default function CourseDetails() {
             </Card>
 
             <Card>
-              <ThemedText type="subtitle">{t('home.myNotes')}</ThemedText>
-              <TextInput
-                multiline
-                value={note}
-                onChangeText={(v) => void saveNote(v)}
-                placeholder={t('courseScreen_notePlaceholder')}
-                placeholderTextColor={mutedColor}
-                style={[
-                  styles.noteInput,
-                  {
-                    borderColor: border,
-                    color: textColor,
-                    backgroundColor: cardBg,
-                  },
-                ]}
+              <ThemedText type="subtitle">{t('course.notes')}</ThemedText>
+              <PrimaryButton
+                title={t('course.addNote')}
+                style={styles.addNoteBtn}
+                onPress={() =>
+                  router.push({ pathname: '/note-editor', params: { courseId: String(courseId) } })
+                }
               />
+              {courseNotes.length === 0 ? (
+                <View style={styles.emptyNotes}>
+                  <ThemedText style={[styles.emptyNotesText, { color: mutedColor }]}>
+                    {t('course.noNotesForCourse')}
+                  </ThemedText>
+                </View>
+              ) : (
+                <View style={styles.noteList}>
+                  {courseNotes.map((n) => (
+                    <Pressable
+                      key={n.id}
+                      onPress={() =>
+                        router.push({ pathname: '/note-detail/[id]', params: { id: String(n.id) } })
+                      }
+                      style={[styles.noteRow, { borderColor: border, backgroundColor: cardBg }]}>
+                      <ThemedText type="defaultSemiBold" numberOfLines={2}>
+                        {n.title}
+                      </ThemedText>
+                      <ThemedText style={{ color: mutedColor }}>{t(`status.${n.status}`)}</ThemedText>
+                      <ThemedText style={{ color: mutedColor }}>{formatUpdatedAt(n.updatedAt)}</ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
             </Card>
           </>
         ) : (
@@ -157,15 +186,15 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(5, 150, 105, 0.45)',
     backgroundColor: 'rgba(16, 185, 129, 0.20)',
   },
-  noteInput: {
-    marginTop: 6,
-    borderWidth: 1,
-    borderRadius: 14,
-    minHeight: 140,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontFamily: 'Inter_400Regular',
-    textAlignVertical: 'top',
+  addNoteBtn: { marginTop: 10 },
+  emptyNotes: {
+    marginTop: 12,
+    width: '100%',
+    alignItems: 'center',
   },
+  emptyNotesText: {
+    textAlign: 'center',
+  },
+  noteList: { gap: 10, marginTop: 12 },
+  noteRow: { borderWidth: 1, borderRadius: 14, padding: 12, gap: 6 },
 });
-

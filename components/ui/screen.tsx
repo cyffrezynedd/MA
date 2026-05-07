@@ -40,7 +40,7 @@ export function Screen({
           <LinearGradient
             colors={
               scheme === 'light'
-                ? ['#FFFFFF', `${brand}2A`, `${brand}18`]
+                ? ['#F5F9FF', `${brand}38`, `${brand3}28`, '#FAF7FF']
                 : [`${brand}22`, `${brand3}1A`, `${brand2}14`, 'transparent']
             }
             start={{ x: 0, y: 0 }}

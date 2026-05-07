@@ -18,7 +18,8 @@ const tintColorDark = '#A7F3D0';
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    /** База под градиентом Screen — не «клинический» #fff, ближе к бирюзовому диагоналю */
+    background: '#F5F9FF',
     // light theme cards: soft purple (fun, not acidic)
     card: '#E9D5FF',
     border: 'rgba(17, 24, 28, 0.10)',

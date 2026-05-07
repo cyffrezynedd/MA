@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -7,7 +7,7 @@ import { Screen } from '@/components/ui/screen';
 import { Card } from '@/components/ui/card';
 import { PrimaryButton, SoftButton } from '@/components/ui/button';
 import { ThemedText } from '@/components/themed-text';
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { ThemedTextInput } from '@/components/ui/themed-text-input';
 import { createCourse, getCourseById, updateCourse } from '@/lib/db/courses';
 import { useApp } from '@/providers/app-provider';
 
@@ -18,8 +18,6 @@ export default function CourseEditor() {
   const courseId = id ? Number(id) : null;
   const isEdit = useMemo(() => Number.isFinite(courseId ?? NaN), [courseId]);
   const { role } = useApp();
-
-  const border = useThemeColor({}, 'border');
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -58,28 +56,28 @@ export default function CourseEditor() {
   }, [courseId, description, isEdit, role, router, t, title]);
 
   return (
-    <Screen withGradient={false}>
+    <Screen>
       <ThemedText type="title">{isEdit ? t('course.edit') : t('catalog.add')}</ThemedText>
 
       <Card>
         <View style={styles.field}>
           <ThemedText type="subtitle">{t('editor.noteTitle')}</ThemedText>
-          <TextInput value={title} onChangeText={setTitle} style={[styles.input, { borderColor: border }]} />
+          <ThemedTextInput value={title} onChangeText={setTitle} />
         </View>
         <View style={styles.field}>
           <ThemedText type="subtitle">{t('editor.noteBody')}</ThemedText>
-          <TextInput
+          <ThemedTextInput
             value={description}
             onChangeText={setDescription}
-            style={[styles.input, styles.textarea, { borderColor: border }]}
+            style={styles.textarea}
             multiline
           />
         </View>
       </Card>
 
       <View style={styles.actions}>
-        <SoftButton title={t('course.cancel')} onPress={() => router.back()} />
-        <PrimaryButton title={t('editor.save')} onPress={() => void onSave()} />
+        <SoftButton title={t('course.cancel')} onPress={() => router.back()} style={styles.actionEqual} />
+        <PrimaryButton title={t('editor.save')} onPress={() => void onSave()} style={styles.actionEqual} />
       </View>
     </Screen>
   );
@@ -87,15 +85,8 @@ export default function CourseEditor() {
 
 const styles = StyleSheet.create({
   field: { gap: 8 },
-  input: {
-    fontFamily: 'Inter_400Regular',
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(0,0,0,0.03)',
-  },
-  textarea: { height: 140 },
-  actions: { flexDirection: 'row', gap: 10, marginTop: 6 },
+  textarea: { minHeight: 140, height: 140, textAlignVertical: 'top' },
+  actions: { flexDirection: 'row', gap: 10, marginTop: 6, alignItems: 'stretch' },
+  actionEqual: { flex: 1, minWidth: 0 },
 });
 

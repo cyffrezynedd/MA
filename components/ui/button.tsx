@@ -1,41 +1,23 @@
 import React from 'react';
 import { Pressable, StyleSheet, type PressableProps, type ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 import { ThemedText } from '@/components/themed-text';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useNavigationTileAccent } from '@/hooks/use-navigation-tile-accent';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
+/** Основная кнопка — тот же визуальный язык, что у навигационных плиток на главной (рамка + лёгкая заливка). */
 export function PrimaryButton({
   title,
   style,
   ...rest
 }: PressableProps & { title: string; style?: ViewStyle }) {
-  const scheme = useColorScheme() ?? 'light';
-  const brand = useThemeColor({}, 'brand');
-  const brand2 = useThemeColor({}, 'brand2');
-  const brand3 = useThemeColor({}, 'brand3');
-  const isLight = scheme === 'light';
+  const accent = useNavigationTileAccent();
 
   return (
     <Pressable
-      style={[
-        styles.btn,
-        isLight ? { backgroundColor: '#D8B4FE', borderColor: '#A78BFA' } : undefined,
-        style,
-      ]}
+      style={[styles.btn, { borderColor: accent.borderColor, backgroundColor: accent.backgroundColor }, style]}
       {...rest}>
-      {!isLight ? (
-        <LinearGradient
-          colors={[brand, brand3, brand2]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradient}
-        />
-      ) : null}
-      <ThemedText type="defaultSemiBold" style={isLight ? styles.textLight : styles.text}>
-        {title}
-      </ThemedText>
+      <ThemedText type="defaultSemiBold">{title}</ThemedText>
     </Pressable>
   );
 }
@@ -70,22 +52,11 @@ export function DangerButton({
 
 const styles = StyleSheet.create({
   btn: {
-    borderRadius: 14,
+    borderRadius: 18,
     paddingVertical: 12,
     paddingHorizontal: 14,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    overflow: 'hidden',
-  },
-  gradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  text: {
-    color: '#001018',
-  },
-  textLight: {
-    color: '#3B0764',
   },
 });
-

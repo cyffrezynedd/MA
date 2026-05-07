@@ -8,7 +8,7 @@ import { Screen } from '@/components/ui/screen';
 import { Card } from '@/components/ui/card';
 import { webHiddenScrollbarStyle } from '@/components/ui/scrollbar-hidden';
 import { ThemedText } from '@/components/themed-text';
-import { DISLIKE_GOPHER, LIKE_GOPHER, MOCK_COURSES } from '@/lib/mocks/courses';
+import { DISLIKE_GOPHER, LIKE_GOPHER, MOCK_COURSES, MOCK_COURSES_BASE } from '@/lib/mocks/courses';
 import type { CourseVote } from '@/lib/mocks/course-progress';
 import { getCourseVote, setCourseVote } from '@/lib/mocks/course-progress';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -21,6 +21,7 @@ function ratingCounts(baseLikes: number, baseDislikes: number, vote: CourseVote 
 
 export default function CatalogScreen() {
   const { t } = useTranslation();
+  const courses = MOCK_COURSES;
   const brand3 = useThemeColor({}, 'brand3');
   const border = useThemeColor({}, 'border');
   const [votes, setVotes] = useState<Record<number, CourseVote | null>>({});
@@ -28,7 +29,7 @@ export default function CatalogScreen() {
   const reloadVotes = useCallback(async () => {
     const next: Record<number, CourseVote | null> = {};
     await Promise.all(
-      MOCK_COURSES.map(async (c) => {
+      MOCK_COURSES_BASE.map(async (c) => {
         next[c.id] = await getCourseVote(c.id);
       })
     );
@@ -71,7 +72,7 @@ export default function CatalogScreen() {
 
       <FlatList
         style={[styles.listFlex, webHiddenScrollbarStyle()]}
-        data={MOCK_COURSES}
+        data={courses}
         keyExtractor={(c) => String(c.id)}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
@@ -99,7 +100,7 @@ export default function CatalogScreen() {
               <View style={styles.ratingRow}>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Лайк"
+                  accessibilityLabel={t('catalog.a11yLike')}
                   onPress={() => void onVoteLike(item.id, vote)}
                   style={[
                     styles.ratingItem,
@@ -111,7 +112,7 @@ export default function CatalogScreen() {
 
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Дизлайк"
+                  accessibilityLabel={t('catalog.a11yDislike')}
                   onPress={() => void onVoteDislike(item.id, vote)}
                   style={[
                     styles.ratingItem,

@@ -44,6 +44,15 @@ export async function listNotes(courseId: number): Promise<CourseNote[]> {
   );
 }
 
+export async function listAllNotes(): Promise<CourseNote[]> {
+  const db = await getDb();
+  return await db.getAllAsync<CourseNote>(
+    `SELECT id, courseId, title, body, status, updatedAt
+     FROM notes
+     ORDER BY updatedAt DESC;`
+  );
+}
+
 export async function getNoteById(id: number): Promise<CourseNote | null> {
   const db = await getDb();
   const row = await db.getFirstAsync<CourseNote>(

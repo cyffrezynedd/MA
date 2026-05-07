@@ -7,21 +7,18 @@ import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/ui/screen';
 import { Card } from '@/components/ui/card';
 import { ThemedText } from '@/components/themed-text';
-import { MOCK_COURSES, type MockCourse } from '@/lib/mocks/courses';
+import { MOCK_COURSES, MOCK_COURSES_BASE, type MockCourse } from '@/lib/mocks/courses';
 import { filterFullyCompletedCourseIds } from '@/lib/mocks/course-progress';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { useApp } from '@/providers/app-provider';
 
 export default function CompletedHistoryScreen() {
   const { t } = useTranslation();
-  const { language } = useApp();
   const muted = useThemeColor({}, 'muted');
-  const emptyListFallback = language === 'ru' ? 'Нет пройденных курсов' : 'No completed courses';
   const [courses, setCourses] = useState<MockCourse[]>([]);
 
   const reload = useCallback(async () => {
     const ids = await filterFullyCompletedCourseIds(
-      MOCK_COURSES.map((c) => ({ id: c.id, testsLength: c.tests.length }))
+      MOCK_COURSES_BASE.map((c) => ({ id: c.id, testsLength: c.tests.length }))
     );
     const idSet = new Set(ids);
     setCourses(MOCK_COURSES.filter((c) => idSet.has(c.id)));
@@ -44,7 +41,7 @@ export default function CompletedHistoryScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <ThemedText style={{ color: muted }}>
-            {t('historyScreen_emptyList', { defaultValue: emptyListFallback })}
+            {t('historyScreen_emptyList')}
           </ThemedText>
         }
         renderItem={({ item }) => (

@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 
+import { useTranslation } from 'react-i18next';
+
 import { ThemedText } from '@/components/themed-text';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
@@ -17,6 +19,7 @@ const STICKER_W = 64;
 const STICKER_COL = STICKER_W + 12;
 
 export function ProgressGopher({ progress, label }: Props) {
+  const { t } = useTranslation();
   const p = Math.max(0, Math.min(100, progress));
   const track = useThemeColor({}, 'border');
   const fill = useThemeColor({}, 'progressFill');
@@ -56,7 +59,7 @@ export function ProgressGopher({ progress, label }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.headerRow}>
-        <ThemedText type="defaultSemiBold">{label ?? 'Прогресс'}</ThemedText>
+        <ThemedText type="defaultSemiBold">{label ?? t('home.progress')}</ThemedText>
         <ThemedText type="defaultSemiBold" style={[styles.headerPct, { color: muted }]}>
           {pctText}
         </ThemedText>

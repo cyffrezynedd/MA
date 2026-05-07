@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const progressKey = (courseId: number) => `mock:course:${courseId}:tests`;
-const noteKey = (courseId: number) => `mock:course:${courseId}:note`;
 const LAST_VISITED_COURSE_KEY = 'mock:last-visited-course-id';
 /** Последний курс, где пользователь менял прохождение тестов */
 const LAST_TESTS_COURSE_KEY = 'mock:last-tests-course-id';
@@ -22,14 +21,6 @@ export async function getCompletedTests(courseId: number): Promise<string[]> {
 
 export async function setCompletedTests(courseId: number, testIds: string[]) {
   await AsyncStorage.setItem(progressKey(courseId), JSON.stringify(testIds));
-}
-
-export async function getCourseNote(courseId: number): Promise<string> {
-  return (await AsyncStorage.getItem(noteKey(courseId))) ?? '';
-}
-
-export async function setCourseNote(courseId: number, value: string) {
-  await AsyncStorage.setItem(noteKey(courseId), value);
 }
 
 export async function getLastVisitedCourseId(): Promise<number | null> {
@@ -73,17 +64,6 @@ export async function filterFullyCompletedCourseIds(
       if (testsLength <= 0) return null;
       const done = await getCompletedTests(id);
       return done.length >= testsLength ? id : null;
-    })
-  );
-  return ids.filter((x): x is number => x != null);
-}
-
-/** Курсы с непустой локальной заметкой */
-export async function filterCourseIdsWithNotes(courseIds: number[]): Promise<number[]> {
-  const ids = await Promise.all(
-    courseIds.map(async (id) => {
-      const note = (await getCourseNote(id)).trim();
-      return note ? id : null;
     })
   );
   return ids.filter((x): x is number => x != null);

@@ -49,6 +49,10 @@ export async function listNotes(courseId: number): Promise<CourseNote[]> {
     .sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
+export async function listAllNotes(): Promise<CourseNote[]> {
+  return readAll().sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
 export async function getNoteById(id: number): Promise<CourseNote | null> {
   return readAll().find((n) => n.id === id) ?? null;
 }
