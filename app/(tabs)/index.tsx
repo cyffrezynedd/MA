@@ -1,98 +1,236 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Link, useFocusEffect } from 'expo-router';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
+import { Screen } from '@/components/ui/screen';
+import { Card } from '@/components/ui/card';
+import { webHiddenScrollbarStyle } from '@/components/ui/scrollbar-hidden';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useNavigationTileAccent } from '@/hooks/use-navigation-tile-accent';
+import { useThemeColor } from '@/hooks/use-theme-color';
+import { getCompletedTests, getLastTestsCourseId, getLastVisitedCourseId } from '@/lib/mocks/course-progress';
+import { getMockCourseById, MOCK_COURSES } from '@/lib/mocks/courses';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { t } = useTranslation();
+  const border = useThemeColor({}, 'border');
+  const progressFill = useThemeColor({}, 'progressFill');
+  const card = useThemeColor({}, 'card');
+  const muted = useThemeColor({}, 'muted');
+  /** Акцент плиток «История» / «Заметки» как у активного таба (`useNavigationTileAccent`), не сегменты настроек. */
+  const accentSurface = useNavigationTileAccent();
+  const [lastCourseId, setLastCourseId] = useState<number | null>(null);
+  const [completedCount, setCompletedCount] = useState(0);
+  const lastCourse = useMemo(() => {
+    if (lastCourseId == null) return MOCK_COURSES[0] ?? null;
+    return getMockCourseById(lastCourseId) ?? (MOCK_COURSES[0] ?? null);
+  }, [lastCourseId]);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
+  const refreshLastCourse = useCallback(async () => {
+    const testsCourseId = await getLastTestsCourseId();
+    const visitedId = await getLastVisitedCourseId();
+    setLastCourseId(testsCourseId ?? visitedId ?? null);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshLastCourse();
+    }, [refreshLastCourse])
+  );
+
+  useEffect(() => {
+    if (!lastCourse) return;
+    (async () => {
+      const completed = await getCompletedTests(lastCourse.id);
+      setCompletedCount(completed.length);
+    })();
+  }, [lastCourse]);
+
+  const progress = useMemo(() => {
+    if (!lastCourse) return 0;
+    return Math.round((completedCount / lastCourse.tests.length) * 100);
+  }, [completedCount, lastCourse]);
+
+  return (
+    <Screen>
+      <ScrollView
+        style={[styles.pageScroll, webHiddenScrollbarStyle()]}
+        contentContainerStyle={styles.pageScrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}>
+        <ThemedText type="title" style={styles.screenTitle} numberOfLines={2}>
+          {t('home.titleStudent')}
         </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+
+        <Card style={styles.heroCard}>
+          <ThemedText type="subtitle">{t('home.lastCourse')}</ThemedText>
+          {!lastCourse ? (
+            <View style={styles.heroBody}>
+              <ThemedText type="defaultSemiBold">{t('catalog.title')}</ThemedText>
+            </View>
+          ) : (
+            <View style={styles.heroFill}>
+              <Link href={{ pathname: '/course/[id]', params: { id: String(lastCourse.id) } }} asChild>
+                <Pressable style={styles.lastCourseColumn}>
+                  <View style={[styles.previewBlock, { borderColor: border, backgroundColor: card }]}>
+                    <Image source={lastCourse.preview} contentFit="cover" style={styles.lastPreviewImage} />
+                  </View>
+                  <View style={[styles.textBlock, { borderColor: border, backgroundColor: card }]}>
+                    <ThemedText type="defaultSemiBold" numberOfLines={2}>
+                      {lastCourse.title}
+                    </ThemedText>
+                    <ThemedText style={styles.descriptionText}>{lastCourse.description}</ThemedText>
+                  </View>
+                </Pressable>
+              </Link>
+
+              <View style={styles.progressFooter}>
+                <View style={[styles.progressTrack, { borderColor: border }]}>
+                  <View style={[styles.progressFillInner, { backgroundColor: progressFill, width: `${progress}%` }]} />
+                </View>
+                <ThemedText type="defaultSemiBold" style={[styles.progressPercent, { color: muted }]}>
+                  {progress}%
+                </ThemedText>
+              </View>
+            </View>
+          )}
+        </Card>
+
+        <View style={styles.bottomRow}>
+          <Link href="/completed-history" asChild>
+            <Pressable style={styles.quickCardOuter}>
+              <Card style={[styles.quickCard, accentSurface]}>
+                <View style={styles.quickCardLabelWrap}>
+                  <ThemedText type="defaultSemiBold" style={styles.quickCardText} numberOfLines={2}>
+                    {t('home.history')}
+                  </ThemedText>
+                </View>
+              </Card>
+            </Pressable>
+          </Link>
+          <Link href="/my-notes" asChild>
+            <Pressable style={styles.quickCardOuter}>
+              <Card style={[styles.quickCard, accentSurface]}>
+                <View style={styles.quickCardLabelWrap}>
+                  <ThemedText type="defaultSemiBold" style={styles.quickCardText} numberOfLines={2}>
+                    {t('home.myNotes')}
+                  </ThemedText>
+                </View>
+              </Card>
+            </Pressable>
+          </Link>
+        </View>
+      </ScrollView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  pageScroll: {
+    flex: 1,
+  },
+  /** Карточка забирает свободную высоту между заголовком и кнопками contentContainer (`flexGrow:1`). */
+  pageScrollContent: {
+    flexGrow: 1,
+    flexDirection: 'column',
+    width: '100%',
+    gap: 12,
+    paddingBottom: 8,
+  },
+  screenTitle: {
+    flexShrink: 1,
+    paddingBottom: 2,
+  },
+  /** Растягивается между title и строкой быстрых действий зазор без пустого фона между. */
+  heroCard: {
+    alignSelf: 'stretch',
+    flexGrow: 1,
+    flexShrink: 1,
+    minHeight: 0,
+  },
+  heroBody: {
+    flex: 1,
+    gap: 12,
+    marginTop: 6,
+    paddingVertical: 24,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    minHeight: 120,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  heroFill: {
+    flex: 1,
+    width: '100%',
+    marginTop: 6,
+    gap: 10,
+    minHeight: 0,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  lastCourseColumn: { flexDirection: 'column', gap: 12, width: '100%' },
+  previewBlock: {
+    width: '100%',
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 6,
+    overflow: 'hidden',
+  },
+  lastPreviewImage: {
+    width: '100%',
+    height: 140,
+    borderRadius: 12,
+  },
+  textBlock: {
+    width: '100%',
+    gap: 8,
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 12,
+  },
+  descriptionText: {
+    fontSize: 17,
+    lineHeight: 26,
+  },
+  progressFooter: {
+    marginTop: 'auto',
+    width: '100%',
+    gap: 6,
+    paddingTop: 2,
+  },
+  progressTrack: {
+    width: '100%',
+    height: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  progressFillInner: { height: '100%', borderRadius: 999 },
+  progressPercent: { alignSelf: 'center', fontSize: 17, lineHeight: 24 },
+
+  bottomRow: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'stretch',
+  },
+  quickCardOuter: { flex: 1, alignSelf: 'stretch', minWidth: 0 },
+  quickCard: {
+    flex: 1,
+    width: '100%',
+    minHeight: 80,
+    paddingVertical: 10,
+    justifyContent: 'center',
+  },
+  quickCardLabelWrap: {
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 48,
+  },
+  quickCardText: {
+    textAlign: 'center',
+    width: '100%',
+    fontSize: 17,
+    lineHeight: 26,
   },
 });

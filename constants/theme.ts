@@ -5,13 +5,30 @@
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Go-ish palette: blue + green + purple + black
+const goBlue = '#00ADD8';
+const goGreen = '#2DD4BF';
+const goPurple = '#7C3AED';
+/** Чуть глубже brand3 — хорошо читается на лиловых карточках светлой темы */
+const progressFillLight = '#6D28D9';
+
+const tintColorLight = goBlue;
+const tintColorDark = '#A7F3D0';
 
 export const Colors = {
   light: {
     text: '#11181C',
     background: '#fff',
+    // light theme cards: soft purple (fun, not acidic)
+    card: '#E9D5FF',
+    border: 'rgba(17, 24, 28, 0.10)',
+    muted: 'rgba(17, 24, 28, 0.62)',
+    brand: goBlue,
+    brand2: goGreen,
+    brand3: goPurple,
+    /** Заливка прогресс-бара (светлая тема — насыщенный фиолетовый) */
+    progressFill: progressFillLight,
+    danger: '#EF4444',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
@@ -19,7 +36,17 @@ export const Colors = {
   },
   dark: {
     text: '#ECEDEE',
-    background: '#151718',
+    background: '#0B0F14',
+    // slightly green-tinted dark cards (soft, not "acid")
+    card: '#0F2320',
+    border: 'rgba(236, 237, 238, 0.18)',
+    muted: 'rgba(236, 237, 238, 0.7)',
+    brand: goBlue,
+    brand2: goGreen,
+    brand3: goPurple,
+    /** Заливка прогресс-бара (тёмная тема — мятно-зелёный в тон карточкам и brand2) */
+    progressFill: goGreen,
+    danger: '#F87171',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
