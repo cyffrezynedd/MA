@@ -15,8 +15,6 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 export function ThemedTextInput({ style, onFocus, onBlur, ...rest }: TextInputProps) {
   const [focused, setFocused] = useState(false);
   const scheme = useColorScheme();
-  const card = useThemeColor({}, 'card');
-  const textColor = useThemeColor({}, 'text');
   const muted = useThemeColor({}, 'muted');
   const brand = useThemeColor({}, 'brand');
   const brand2 = useThemeColor({}, 'brand2');

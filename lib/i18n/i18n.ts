@@ -15,6 +15,7 @@ const resources = {
       tabs: {
         home: 'Главная',
         catalog: 'Каталог',
+        goHub: 'Go в GitHub',
         settings: 'Настройки',
       },
       role: {
@@ -95,6 +96,16 @@ const resources = {
         creatorOnlyTitle: 'Недоступно',
         creatorOnlyMessage: 'Только создатель курсов может менять каталог.',
       },
+      goHub: {
+        title: 'Популярные репозитории Go',
+        offlineTitle: 'Нет подключения к интернету',
+        offlineHint: 'Показан последний сохранённый список.',
+        cacheBanner: 'Оффлайн: данные из кэша на устройстве.',
+        emptyOffline: 'Нет сохранённых данных. Подключите интернет и потяните список вниз.',
+        stars: '{{count}} звёзд',
+        open: 'Открыть на GitHub',
+        loading: 'Загрузка…',
+      },
     },
   },
   en: {
@@ -107,6 +118,7 @@ const resources = {
       tabs: {
         home: 'Home',
         catalog: 'Catalog',
+        goHub: 'Go on GitHub',
         settings: 'Settings',
       },
       role: {
@@ -185,6 +197,16 @@ const resources = {
         noteStatus: 'Status',
         creatorOnlyTitle: 'Unavailable',
         creatorOnlyMessage: 'Only course creators can change the catalog.',
+      },
+      goHub: {
+        title: 'Popular Go repositories',
+        offlineTitle: 'No internet connection',
+        offlineHint: 'Showing the last saved list.',
+        cacheBanner: 'Offline: data loaded from on-device cache.',
+        emptyOffline: 'Nothing cached yet. Go online and pull to refresh.',
+        stars: '{{count}} stars',
+        open: 'Open on GitHub',
+        loading: 'Loading…',
       },
     },
   },

@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { NavHouseIcon, NavPackageIcon, NavSettingsIcon } from '@/components/ui/nav-icons';
+import { NavGoHubIcon, NavHouseIcon, NavPackageIcon, NavSettingsIcon } from '@/components/ui/nav-icons';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { TAB_BAR_STYLE_HEIGHT, tabBarBottomOffset } from '@/lib/layout/tab-bar';
@@ -72,6 +72,13 @@ export default function TabLayout() {
         options={{
           title: t('tabs.catalog'),
           tabBarIcon: ({ color }) => <NavPackageIcon size={24} color={String(color)} />,
+        }}
+      />
+      <Tabs.Screen
+        name="go-hub"
+        options={{
+          title: t('tabs.goHub'),
+          tabBarIcon: ({ color }) => <NavGoHubIcon size={24} color={String(color)} />,
         }}
       />
       <Tabs.Screen

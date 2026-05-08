@@ -7,6 +7,7 @@ import type { AppLanguage, AppRole, ThemePreference } from '@/lib/storage/keys';
 import { changeLanguage, detectDeviceLanguage, initI18n } from '@/lib/i18n/i18n';
 import { getLanguage, getThemePreference, setLanguage, setRole, setThemePreference } from '@/lib/settings/settings';
 import { initCoursesDb } from '@/lib/db/courses';
+import { initGoHubCacheDb } from '@/lib/db/go-hub-cache';
 import { initNotesDb } from '@/lib/db/notes';
 
 type AppContextValue = {
@@ -42,6 +43,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           initI18n(initialLang),
           initCoursesDb(),
           initNotesDb(),
+          initGoHubCacheDb(),
           Font.loadAsync({
             Inter_400Regular,
             Inter_600SemiBold,
