@@ -1,0 +1,50 @@
+[
+  {
+    "id": 101,
+    "title": "Основы Go для начинающих",
+    "description": "Типы, переменные, функции и первые шаги в экосистеме Go. Короткий курс для уверенного старта.",
+    "previewImageUrl": "",
+    "likes": 328,
+    "dislikes": 17,
+    "tests": [
+      { "id": "t1", "title": "Синтаксис и типы" },
+      { "id": "t2", "title": "Функции и ошибки" },
+      { "id": "t3", "title": "Практика: мини-задача" }
+    ],
+    "category": "basics",
+    "keywords": ["go", "основы", "переменные", "функции", "типы"],
+    "updatedAt": 1715000000000
+  },
+  {
+    "id": 102,
+    "title": "Конкурентность в Go",
+    "description": "Горутины, каналы, select и паттерны конкурентности. Меньше теории, больше практики на примерах.",
+    "previewImageUrl": "",
+    "likes": 412,
+    "dislikes": 24,
+    "tests": [
+      { "id": "t1", "title": "Горутины и планировщик" },
+      { "id": "t2", "title": "Каналы и select" },
+      { "id": "t3", "title": "Паттерны worker pool" }
+    ],
+    "category": "concurrency",
+    "keywords": ["go", "горутины", "каналы", "select", "конкурентность"],
+    "updatedAt": 1715100000000
+  },
+  {
+    "id": 103,
+    "title": "Go: HTTP и REST",
+    "description": "Поднимем API на net/http, разберём роутинг, middleware и структуру простого production-like сервиса.",
+    "previewImageUrl": "",
+    "likes": 287,
+    "dislikes": 12,
+    "tests": [
+      { "id": "t1", "title": "Основы HTTP handler" },
+      { "id": "t2", "title": "JSON и валидация" },
+      { "id": "t3", "title": "Middleware и ошибки" }
+    ],
+    "category": "http",
+    "keywords": ["go", "http", "rest", "api", "json"],
+    "updatedAt": 1715200000000
+  }
+]

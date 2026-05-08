@@ -2,6 +2,25 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Firebase — только облако (Google Firestore)
+
+1. [Firebase Console](https://console.firebase.google.com): проект → **Firestore** → создать БД.
+2. **Настройки проекта** → **Ваши приложения** → добавить **Веб** → скопируй `firebaseConfig`.
+3. В папке проекта: **`npm run firebase:wizard`** — вставь поля из консоли.
+4. **`npx firebase login`**
+5. В консоли: **Build → Storage** — включи хранилище (если ещё не).
+6. **`npm run deploy:firestore-rules`** и **`npm run deploy:storage-rules`**
+7. **`npm run seed:firestore`** — каталог. Поле `previewImageUrl` можно оставить пустым: для id 101/102/103 подставятся те же файлы, что в моках (`preview1.png` / `preview2.png`). Любой непустой URL — картинка из интернета / Storage.
+8. **`npm run firebase:check`** и **`npm start --clear`**
+
+**Уведомления о новом курсе:** локальное (expo-notifications), не FCM. Срабатывает, когда при загрузке каталога появляется **новый** `id`, которого не было в сохранённом снапшоте. Первый успешный запуск только запоминает id — без спама. Нужны разрешения на уведомления. Обнови каталог: **потяни список вниз** на вкладке «Каталог» или перезапусти приложение.
+
+Проверка: после **`npm run deploy:firestore-rules`** (правило `delete` для `courses/99999`) выполни **`npm run test:new-course-add`**, в приложении обнови каталог → должно прийти уведомление. Удаление теста: **`npm run test:new-course-remove`**.
+
+**Свои превью в Firebase Storage:** загрузи файлы в папку `courses/` (например `courses/101.jpg`), скопируй **Download URL** и впиши в документ Firestore поле `previewImageUrl`. Правила: чтение публичное для `courses/**`.
+
+Строки вида `demo-api-key` в проекте — только для старого локального эмулятора; для Google их **не** используй.
+
 ## Get started
 
 1. Install dependencies

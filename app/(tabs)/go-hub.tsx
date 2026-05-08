@@ -2,7 +2,6 @@ import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   RefreshControl,
   StyleSheet,
   View,
@@ -12,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
+import { PrimaryButton } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { webHiddenScrollbarStyle } from '@/components/ui/scrollbar-hidden';
 import { useGoHubViewModel } from '@/hooks/use-go-hub-view-model';
@@ -41,11 +41,11 @@ export default function GoHubScreen() {
         {t('goHub.stars', { count: item.stargazersCount })}
         {item.language ? ` · ${item.language}` : ''}
       </ThemedText>
-      <Pressable
+      <PrimaryButton
+        title={t('goHub.open')}
         onPress={() => void openRepo(item.htmlUrl)}
-        style={({ pressed }) => [styles.linkBtn, pressed && styles.linkBtnPressed]}>
-        <ThemedText style={[styles.linkText, { color: brand }]}>{t('goHub.open')}</ThemedText>
-      </Pressable>
+        style={styles.openRepoBtn}
+      />
     </Card>
   );
 
@@ -103,9 +103,7 @@ const styles = StyleSheet.create({
   card: { gap: 8 },
   desc: { marginTop: 4 },
   meta: { fontSize: 13 },
-  linkBtn: { alignSelf: 'flex-start', marginTop: 6, paddingVertical: 6, paddingHorizontal: 4 },
-  linkBtnPressed: { opacity: 0.7 },
-  linkText: { fontFamily: 'Inter_600SemiBold', fontSize: 15 },
+  openRepoBtn: { alignSelf: 'stretch', marginTop: 8 },
   center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 24, gap: 8 },
   loadingLabel: { fontSize: 14 },
   empty: { textAlign: 'center', paddingVertical: 12 },

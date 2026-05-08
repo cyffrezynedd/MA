@@ -5,19 +5,26 @@ import { ThemedText } from '@/components/themed-text';
 import { useNavigationTileAccent } from '@/hooks/use-navigation-tile-accent';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
-/** Основная кнопка — тот же визуальный язык, что у навигационных плиток на главной (рамка + лёгкая заливка). */
+/** Основная кнопка — рамка и заливка как у Sort / плиток навигации (`useNavigationTileAccent`). */
 export function PrimaryButton({
   title,
+  titleNumberOfLines,
   style,
   ...rest
-}: PressableProps & { title: string; style?: ViewStyle }) {
+}: PressableProps & { title: string; titleNumberOfLines?: number; style?: ViewStyle }) {
   const accent = useNavigationTileAccent();
 
   return (
     <Pressable
-      style={[styles.btn, { borderColor: accent.borderColor, backgroundColor: accent.backgroundColor }, style]}
+      style={({ pressed }) => [
+        styles.accentBtn,
+        { borderColor: accent.borderColor, backgroundColor: accent.backgroundColor, opacity: pressed ? 0.88 : 1 },
+        style,
+      ]}
       {...rest}>
-      <ThemedText type="defaultSemiBold">{title}</ThemedText>
+      <ThemedText type="defaultSemiBold" numberOfLines={titleNumberOfLines} style={styles.primaryBtnText}>
+        {title}
+      </ThemedText>
     </Pressable>
   );
 }
@@ -31,7 +38,7 @@ export function SoftButton({
   const bg = useThemeColor({}, 'card');
 
   return (
-    <Pressable style={[styles.btn, { backgroundColor: bg, borderColor: border }, style]} {...rest}>
+    <Pressable style={[styles.accentBtn, { backgroundColor: bg, borderColor: border }, style]} {...rest}>
       <ThemedText type="defaultSemiBold">{title}</ThemedText>
     </Pressable>
   );
@@ -44,19 +51,24 @@ export function DangerButton({
 }: PressableProps & { title: string; style?: ViewStyle }) {
   const danger = useThemeColor({}, 'danger');
   return (
-    <Pressable style={[styles.btn, { backgroundColor: `${danger}22`, borderColor: `${danger}55` }, style]} {...rest}>
+    <Pressable style={[styles.accentBtn, { backgroundColor: `${danger}22`, borderColor: `${danger}55` }, style]} {...rest}>
       <ThemedText type="defaultSemiBold">{title}</ThemedText>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  btn: {
+  primaryBtnText: {
+    textAlign: 'center',
+  },
+  /** Как `sortBtnInline` в каталоге — одна линия с плитками «История» / Add note. */
+  accentBtn: {
     borderRadius: 18,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    borderWidth: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    minHeight: 52,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
 });

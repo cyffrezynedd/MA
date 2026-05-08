@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { StorageKeys, type AppLanguage, type AppRole, type ThemePreference } from '@/lib/storage/keys';
+import { StorageKeys, type AppLanguage, type ThemePreference } from '@/lib/storage/keys';
 
 export async function getThemePreference(): Promise<ThemePreference> {
   const raw = await AsyncStorage.getItem(StorageKeys.theme);
@@ -20,15 +20,5 @@ export async function getLanguage(): Promise<AppLanguage | null> {
 
 export async function setLanguage(value: AppLanguage) {
   await AsyncStorage.setItem(StorageKeys.language, value);
-}
-
-export async function getRole(): Promise<AppRole> {
-  const raw = await AsyncStorage.getItem(StorageKeys.role);
-  if (raw === 'creator' || raw === 'student') return raw;
-  return 'student';
-}
-
-export async function setRole(value: AppRole) {
-  await AsyncStorage.setItem(StorageKeys.role, value);
 }
 

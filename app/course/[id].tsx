@@ -11,7 +11,9 @@ import { webHiddenScrollbarStyle } from '@/components/ui/scrollbar-hidden';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressGopher } from '@/components/ui/progress-gopher';
 import { useThemeColor } from '@/hooks/use-theme-color';
-import { getMockCourseById } from '@/lib/mocks/courses';
+import { getCatalogCourseById, type CatalogCourseItem } from '@/lib/catalog/catalog-session';
+import { sqliteCourseToCatalogItem } from '@/lib/catalog/local-courses';
+import { getCourseById } from '@/lib/db/courses';
 import {
   getCompletedTests,
   setCompletedTests,
@@ -28,9 +30,39 @@ export default function CourseDetails() {
   const border = useThemeColor({}, 'border');
   const mutedColor = useThemeColor({}, 'muted');
   const cardBg = useThemeColor({}, 'card');
-  const course = useMemo(() => getMockCourseById(courseId), [courseId]);
+  const [course, setCourse] = useState<CatalogCourseItem | null>(() =>
+    Number.isFinite(courseId) ? getCatalogCourseById(courseId) : null
+  );
   const [completedTests, setCompletedTestsState] = useState<string[]>([]);
   const [courseNotes, setCourseNotes] = useState<CourseNote[]>([]);
+
+  useEffect(() => {
+    if (!Number.isFinite(courseId)) {
+      setCourse(null);
+      return;
+    }
+    const fromSession = getCatalogCourseById(courseId);
+    if (fromSession) {
+      setCourse(fromSession);
+      return;
+    }
+    let cancelled = false;
+    void getCourseById(courseId).then((row) => {
+      if (cancelled) return;
+      setCourse(row ? sqliteCourseToCatalogItem(row) : null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [courseId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!Number.isFinite(courseId)) return;
+      const fromSession = getCatalogCourseById(courseId);
+      if (fromSession) setCourse(fromSession);
+    }, [courseId])
+  );
 
   const reloadNotes = useCallback(async () => {
     if (!Number.isFinite(courseId)) return;
@@ -54,7 +86,7 @@ export default function CourseDetails() {
 
   const title = useMemo(() => course?.title ?? t('course.details'), [course, t]);
   const progress = useMemo(() => {
-    if (!course) return 0;
+    if (!course || course.tests.length === 0) return 0;
     return Math.round((completedTests.length / course.tests.length) * 100);
   }, [completedTests.length, course]);
 
@@ -88,6 +120,14 @@ export default function CourseDetails() {
 
         {course ? (
           <>
+            {course.source === 'device' ? (
+              <PrimaryButton
+                title={t('course.edit')}
+                onPress={() => router.push({ pathname: '/course-editor', params: { id: String(courseId) } })}
+                style={styles.editLocalBtn}
+              />
+            ) : null}
+
             <Card style={styles.videoCard}>
               <Image source={course.preview} contentFit="cover" style={styles.videoPreview} />
               <View style={styles.videoMeta}>
@@ -95,28 +135,35 @@ export default function CourseDetails() {
               </View>
             </Card>
 
-            <Card>
-              <ThemedText type="subtitle">{t('courseScreen_tests')}</ThemedText>
-              <ProgressGopher progress={progress} label={t('home.progress')} />
-              <View style={styles.tests}>
-                {course.tests.map((test) => {
-                  const done = completedTests.includes(test.id);
-                  return (
-                    <Pressable
-                      key={test.id}
-                      onPress={() => void toggleTest(test.id)}
-                      style={[styles.testItem, { borderColor: border }, done ? styles.testDone : undefined]}>
-                      <ThemedText type="defaultSemiBold">{test.title}</ThemedText>
-                      <View style={[styles.testBadge, done ? styles.testBadgeDone : undefined]}>
-                        <ThemedText type="defaultSemiBold">
-                          {done ? t('courseScreen_testPassed') : t('courseScreen_testTake')}
-                        </ThemedText>
-                      </View>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </Card>
+            {course.tests.length > 0 ? (
+              <Card>
+                <ThemedText type="subtitle">{t('courseScreen_tests')}</ThemedText>
+                <ProgressGopher progress={progress} label={t('home.progress')} />
+                <View style={styles.tests}>
+                  {course.tests.map((test) => {
+                    const done = completedTests.includes(test.id);
+                    return (
+                      <Pressable
+                        key={test.id}
+                        onPress={() => void toggleTest(test.id)}
+                        style={[styles.testItem, { borderColor: border }, done ? styles.testDone : undefined]}>
+                        <ThemedText type="defaultSemiBold">{test.title}</ThemedText>
+                        <View style={[styles.testBadge, done ? styles.testBadgeDone : undefined]}>
+                          <ThemedText type="defaultSemiBold">
+                            {done ? t('courseScreen_testPassed') : t('courseScreen_testTake')}
+                          </ThemedText>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </Card>
+            ) : (
+              <Card>
+                <ThemedText type="subtitle">{t('courseScreen_tests')}</ThemedText>
+                <ThemedText style={{ color: mutedColor }}>{t('courseScreen_noTests')}</ThemedText>
+              </Card>
+            )}
 
             <Card>
               <ThemedText type="subtitle">{t('course.notes')}</ThemedText>
@@ -167,6 +214,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   courseTitle: { flexShrink: 1, lineHeight: 42 },
   content: { flexGrow: 0, gap: 12, paddingBottom: 16 },
+  editLocalBtn: { alignSelf: 'stretch', marginBottom: 4 },
   videoCard: { gap: 10 },
   videoPreview: { width: '100%', height: 180, borderRadius: 14 },
   videoMeta: { gap: 4 },
@@ -186,7 +234,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(5, 150, 105, 0.45)',
     backgroundColor: 'rgba(16, 185, 129, 0.20)',
   },
-  addNoteBtn: { marginTop: 10 },
+  addNoteBtn: { marginTop: 10, alignSelf: 'stretch' },
   emptyNotes: {
     marginTop: 12,
     width: '100%',

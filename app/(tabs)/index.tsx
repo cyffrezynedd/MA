@@ -1,26 +1,25 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Link, useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 
 import { Screen } from '@/components/ui/screen';
 import { Card } from '@/components/ui/card';
 import { webHiddenScrollbarStyle } from '@/components/ui/scrollbar-hidden';
+import { PrimaryButton } from '@/components/ui/button';
 import { ThemedText } from '@/components/themed-text';
-import { useNavigationTileAccent } from '@/hooks/use-navigation-tile-accent';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { getCompletedTests, getLastTestsCourseId, getLastVisitedCourseId } from '@/lib/mocks/course-progress';
 import { getMockCourseById, MOCK_COURSES } from '@/lib/mocks/courses';
 
 export default function HomeScreen() {
   const { t } = useTranslation();
+  const router = useRouter();
   const border = useThemeColor({}, 'border');
   const progressFill = useThemeColor({}, 'progressFill');
   const card = useThemeColor({}, 'card');
   const muted = useThemeColor({}, 'muted');
-  /** Акцент плиток «История» / «Заметки» как у активного таба (`useNavigationTileAccent`), не сегменты настроек. */
-  const accentSurface = useNavigationTileAccent();
   const [lastCourseId, setLastCourseId] = useState<number | null>(null);
   const [completedCount, setCompletedCount] = useState(0);
   const lastCourse = useMemo(() => {
@@ -49,7 +48,7 @@ export default function HomeScreen() {
   }, [lastCourse]);
 
   const progress = useMemo(() => {
-    if (!lastCourse) return 0;
+    if (!lastCourse || lastCourse.tests.length === 0) return 0;
     return Math.round((completedCount / lastCourse.tests.length) * 100);
   }, [completedCount, lastCourse]);
 
@@ -100,28 +99,18 @@ export default function HomeScreen() {
         </Card>
 
         <View style={styles.bottomRow}>
-          <Link href="/completed-history" asChild>
-            <Pressable style={styles.quickCardOuter}>
-              <Card style={[styles.quickCard, accentSurface]}>
-                <View style={styles.quickCardLabelWrap}>
-                  <ThemedText type="defaultSemiBold" style={styles.quickCardText} numberOfLines={2}>
-                    {t('home.history')}
-                  </ThemedText>
-                </View>
-              </Card>
-            </Pressable>
-          </Link>
-          <Link href="/my-notes" asChild>
-            <Pressable style={styles.quickCardOuter}>
-              <Card style={[styles.quickCard, accentSurface]}>
-                <View style={styles.quickCardLabelWrap}>
-                  <ThemedText type="defaultSemiBold" style={styles.quickCardText} numberOfLines={2}>
-                    {t('home.myNotes')}
-                  </ThemedText>
-                </View>
-              </Card>
-            </Pressable>
-          </Link>
+          <PrimaryButton
+            title={t('home.history')}
+            titleNumberOfLines={2}
+            onPress={() => router.push('/completed-history')}
+            style={styles.quickPrimary}
+          />
+          <PrimaryButton
+            title={t('home.myNotes')}
+            titleNumberOfLines={2}
+            onPress={() => router.push('/my-notes')}
+            style={styles.quickPrimary}
+          />
         </View>
       </ScrollView>
     </Screen>
@@ -213,24 +202,6 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: 'stretch',
   },
-  quickCardOuter: { flex: 1, alignSelf: 'stretch', minWidth: 0 },
-  quickCard: {
-    flex: 1,
-    width: '100%',
-    minHeight: 80,
-    paddingVertical: 10,
-    justifyContent: 'center',
-  },
-  quickCardLabelWrap: {
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 48,
-  },
-  quickCardText: {
-    textAlign: 'center',
-    width: '100%',
-    fontSize: 17,
-    lineHeight: 26,
-  },
+  /** `PrimaryButton`: на web у Link+asChild стили часто срываются; здесь тот же вид, что Sort / Add note. */
+  quickPrimary: { flex: 1, minWidth: 0, alignSelf: 'stretch' },
 });

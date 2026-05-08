@@ -8,8 +8,7 @@ import { Card } from '@/components/ui/card';
 import { PrimaryButton, SoftButton } from '@/components/ui/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedTextInput } from '@/components/ui/themed-text-input';
-import { createCourse, getCourseById, updateCourse } from '@/lib/db/courses';
-import { useApp } from '@/providers/app-provider';
+import { getCourseById, updateCourse } from '@/lib/db/courses';
 
 export default function CourseEditor() {
   const { t } = useTranslation();
@@ -17,7 +16,6 @@ export default function CourseEditor() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const courseId = id ? Number(id) : null;
   const isEdit = useMemo(() => Number.isFinite(courseId ?? NaN), [courseId]);
-  const { role } = useApp();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -37,23 +35,26 @@ export default function CourseEditor() {
   }, [courseId, isEdit]);
 
   const onSave = useCallback(async () => {
-    if (role !== 'creator') {
-      Alert.alert(t('editor.creatorOnlyTitle'), t('editor.creatorOnlyMessage'));
-      return;
-    }
     const tt = title.trim();
     const dd = description.trim();
     if (!tt || !dd) {
       Alert.alert(t('editor.required'));
       return;
     }
+
     if (isEdit && courseId != null) {
+      const existing = await getCourseById(courseId);
+      if (!existing) {
+        Alert.alert(t('editor.creatorOnlyTitle'), t('editor.creatorOnlyMessage'));
+        return;
+      }
       await updateCourse(courseId, { title: tt, description: dd });
-    } else {
-      await createCourse({ title: tt, description: dd });
+      router.back();
+      return;
     }
-    router.back();
-  }, [courseId, description, isEdit, role, router, t, title]);
+
+    Alert.alert(t('editor.creatorOnlyTitle'), t('editor.creatorOnlyMessage'));
+  }, [courseId, description, isEdit, router, t, title]);
 
   return (
     <Screen>

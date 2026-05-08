@@ -1,0 +1,63 @@
+[debug] [2026-05-08T08:40:12.243Z] ----------------------------------------------------------------------
+[debug] [2026-05-08T08:40:12.246Z] Command:       d:\cursor\_\resources\app\resources\helpers\node.exe D:\3 курс\рподмп\GoCoursesLab\node_modules\firebase-tools\lib\bin\firebase.js emulators:start --only firestore
+[debug] [2026-05-08T08:40:12.247Z] CLI Version:   15.17.0
+[debug] [2026-05-08T08:40:12.247Z] Platform:      win32
+[debug] [2026-05-08T08:40:12.247Z] Node Version:  v22.22.0
+[debug] [2026-05-08T08:40:12.247Z] Time:          Fri May 08 2026 11:40:12 GMT+0300 (Москва, стандартное время)
+[debug] [2026-05-08T08:40:12.247Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-05-08T08:40:14.201Z] openjdk version "21.0.8" 2025-07-15 LTS
+
+[debug] [2026-05-08T08:40:14.201Z] OpenJDK Runtime Environment Temurin-21.0.8+9 (build 21.0.8+9-LTS)
+OpenJDK 64-Bit Server VM Temurin-21.0.8+9 (build 21.0.8+9-LTS, mixed mode, sharing)
+
+[debug] [2026-05-08T08:40:14.224Z] Parsed Java major version: 21
+[info] i  emulators: Starting emulators: firestore {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: firestore"}}
+[info] i  emulators: Detected demo project ID "demo-gocourses-lab", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail. {"metadata":{"emulator":{"name":"hub"},"message":"Detected demo project ID \"demo-gocourses-lab\", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail."}}
+[debug] [2026-05-08T08:40:14.238Z] assigned listening specs for emulators {"user":{"hub":[{"address":"0.0.0.0","family":"IPv4","port":28766}],"logging":[{"address":"0.0.0.0","family":"IPv4","port":28767}],"firestore":[{"address":"0.0.0.0","family":"IPv4","port":28765}],"firestore.websocket":[{"address":"0.0.0.0","family":"IPv4","port":9150}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2026-05-08T08:40:14.242Z] Found emulator hub locator: {"version":"15.17.0","origins":["http://127.0.0.1:4400","http://[::1]:4400"],"pid":1416}
+[warn] !  emulators: It seems that you are running multiple instances of the emulator suite for project demo-gocourses-lab. This may result in unexpected behavior. 
+[debug] [2026-05-08T08:40:14.251Z] Ignoring unsupported arg: auto_download {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: auto_download"}}
+[debug] [2026-05-08T08:40:14.251Z] Ignoring unsupported arg: single_project_mode_error {"metadata":{"emulator":{"name":"firestore"},"message":"Ignoring unsupported arg: single_project_mode_error"}}
+[debug] [2026-05-08T08:40:14.251Z] Starting Firestore Emulator with command {"binary":"java","args":["-Dgoogle.cloud_firestore.debug_log_level=FINE","-Duser.language=en","-jar","C:\\Users\\Администратор\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.21.0.jar","--host","0.0.0.0","--port",28765,"--websocket_port",9150,"--database-edition","standard","--project_id","demo-gocourses-lab","--rules","D:\\3 курс\\рподмп\\GoCoursesLab\\firestore.rules","--single_project_mode",true],"optionalArgs":["port","webchannel_port","host","rules","websocket_port","database-edition","functions_emulator","seed_from_export","project_id","single_project_mode"],"joinArgs":false,"shell":false,"port":28765} {"metadata":{"emulator":{"name":"firestore"},"message":"Starting Firestore Emulator with command {\"binary\":\"java\",\"args\":[\"-Dgoogle.cloud_firestore.debug_log_level=FINE\",\"-Duser.language=en\",\"-jar\",\"C:\\\\Users\\\\Администратор\\\\.cache\\\\firebase\\\\emulators\\\\cloud-firestore-emulator-v1.21.0.jar\",\"--host\",\"0.0.0.0\",\"--port\",28765,\"--websocket_port\",9150,\"--database-edition\",\"standard\",\"--project_id\",\"demo-gocourses-lab\",\"--rules\",\"D:\\\\3 курс\\\\рподмп\\\\GoCoursesLab\\\\firestore.rules\",\"--single_project_mode\",true],\"optionalArgs\":[\"port\",\"webchannel_port\",\"host\",\"rules\",\"websocket_port\",\"database-edition\",\"functions_emulator\",\"seed_from_export\",\"project_id\",\"single_project_mode\"],\"joinArgs\":false,\"shell\":false,\"port\":28765}"}}
+[info] i  firestore: Firestore Emulator logging to firestore-debug.log {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator logging to firestore-debug.log"}}
+[debug] [2026-05-08T08:40:15.874Z] May 08, 2026 11:40:15 AM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start
+INFO: Started WebSocket server on ws://0.0.0.0:9150
+ {"metadata":{"emulator":{"name":"firestore"},"message":"May 08, 2026 11:40:15 AM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start\r\nINFO: Started WebSocket server on ws://0.0.0.0:9150\r\n"}}
+[debug] [2026-05-08T08:40:15.972Z] 
+API endpoint: http:// {"metadata":{"emulator":{"name":"firestore"},"message":"\nAPI endpoint: http://"}}
+[debug] [2026-05-08T08:40:15.973Z] 0.0.0.0:28765
+Database Edition: STANDARD
+Database Mode: CLOUD_FIRESTORE
+
+If you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:
+
+   export FIRESTORE_EMULATOR_HOST=0.0.0.0:28765
+
+If you are running a Firestore in Datastore Mode project, run:
+
+   export DATASTORE_EMULATOR_HOST=0.0.0.0:28765
+
+Note: Support for Datastore Mode is in preview. If you encounter any bugs please file at https://github.com/firebase/firebase-tools/issues.
+Dev App Server is now running.
+
+ {"metadata":{"emulator":{"name":"firestore"},"message":"0.0.0.0:28765\nDatabase Edition: STANDARD\nDatabase Mode: CLOUD_FIRESTORE\n\nIf you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:\r\n\n   export FIRESTORE_EMULATOR_HOST=0.0.0.0:28765\n\nIf you are running a Firestore in Datastore Mode project, run:\r\n\n   export DATASTORE_EMULATOR_HOST=0.0.0.0:28765\n\nNote: Support for Datastore Mode is in preview. If you encounter any bugs please file at https://github.com/firebase/firebase-tools/issues.\r\nDev App Server is now running.\n\r\n"}}
+[info] +  firestore: Firestore Emulator was started in standard edition. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator was started in standard edition."}}
+[info] +  firestore: Firestore Emulator UI websocket is running on 9150. {"metadata":{"emulator":{"name":"firestore"},"message":"Firestore Emulator UI websocket is running on 9150."}}
+[warn] !  emulators: The Emulator UI is not starting because none of the running emulators have a UI component. {"metadata":{"emulator":{"name":"hub"},"message":"The Emulator UI is not starting because none of the running emulators have a UI component."}}
+[debug] [2026-05-08T08:40:16.111Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase SQL Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬───────────────┐
+│ Emulator  │ Host:Port     │
+├───────────┼───────────────┤
+│ Firestore │ 0.0.0.0:28765 │
+└───────────┴───────────────┘
+  Emulator Hub host: 127.0.0.1 port: 28766
+  Other reserved ports: 28767, 9150
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 

@@ -86,7 +86,7 @@ export default function MyNotesScreen() {
 }
 
 const styles = StyleSheet.create({
-  addBtn: { marginTop: 12, marginBottom: 8 },
+  addBtn: { marginTop: 12, marginBottom: 8, alignSelf: 'stretch' },
   listWrapper: { flex: 1 },
   list: { gap: 10, paddingBottom: 16 },
   emptyList: {

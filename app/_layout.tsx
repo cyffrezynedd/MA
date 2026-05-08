@@ -11,6 +11,7 @@ import { Image } from 'expo-image';
 import { Colors } from '@/constants/theme';
 import { AppProvider, useApp } from '@/providers/app-provider';
 import { i18n } from '@/lib/i18n/i18n';
+import { ensureNotificationPresentationHandler } from '@/lib/notifications/channels';
 
 /** Минимум показа boot-экрана при холодном старте (мс). */
 const BOOT_MIN_MS = 2000;
@@ -34,6 +35,10 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 function AppShell() {
   const { ready, resolvedColorScheme } = useApp();
   const [minBootDone, setMinBootDone] = useState(false);
+
+  useEffect(() => {
+    void ensureNotificationPresentationHandler();
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setMinBootDone(true), BOOT_MIN_MS);
