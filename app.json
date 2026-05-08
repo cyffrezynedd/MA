@@ -9,9 +9,14 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cyffrezynedd.gocourseslab",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Для быстрого входа по Face ID после сохранения логина (учебный сценарий ЛР4)."
+      }
     },
     "android": {
+      "package": "com.cyffrezynedd.gocourseslab",
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -42,10 +47,23 @@
         }
       ],
       "expo-sqlite",
-      "expo-localization"
+      "expo-localization",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Разрешите Face ID для входа в аккаунт (ЛР4)."
+        }
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6c4c9c40-d99b-4de8-925f-cd4d11a41189"
+      }
     }
   }
 }

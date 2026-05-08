@@ -25,6 +25,13 @@ config.resolver.resolveRequest = (context, moduleName, platform, ...rest) => {
       type: 'sourceFile',
     };
   }
+  // @firebase/auth: на native брать dist/rn (ESM index тянет чанки; при битой установке/OneDrive файл .js может стать .DELETE.*).
+  if (moduleName === '@firebase/auth' && platform !== 'web') {
+    return {
+      filePath: path.join(__dirname, 'node_modules/@firebase/auth/dist/rn/index.js'),
+      type: 'sourceFile',
+    };
+  }
   if (typeof defaultResolveRequest === 'function') {
     return defaultResolveRequest(context, moduleName, platform, ...rest);
   }

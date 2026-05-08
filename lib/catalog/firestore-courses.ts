@@ -1,4 +1,11 @@
-import { collection, getDocs, type Timestamp } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  type DocumentData,
+  type QueryDocumentSnapshot,
+  type Timestamp,
+} from 'firebase/firestore';
 
 import { getFirebaseApp, isUsingFirestoreEmulator } from '@/lib/firebase/app';
 import { getFirestoreDb } from '@/lib/firebase/firestore';
@@ -69,6 +76,36 @@ function parseKeywords(value: unknown): string[] {
   return value.filter((k): k is string => typeof k === 'string' && k.length > 0);
 }
 
+export function mapCourseDocToRemote(docSnap: QueryDocumentSnapshot<DocumentData>): RemoteCourse | null {
+  const data = docSnap.data() as Record<string, unknown>;
+  const idFromField = asNumber(data.id, Number.NaN);
+  const idFromDoc = Number(docSnap.id);
+  const id = Number.isFinite(idFromField) ? idFromField : Number.isFinite(idFromDoc) ? idFromDoc : Number.NaN;
+  if (!Number.isFinite(id)) return null;
+
+  return {
+    id,
+    title: asString(data.title, 'Untitled'),
+    description: asString(data.description, ''),
+    previewImageUrl: asString(data.previewImageUrl ?? data.previewUrl, ''),
+    likes: asNumber(data.likes, 0),
+    dislikes: asNumber(data.dislikes, 0),
+    tests: parseTests(data.tests),
+    category: asString(data.category, ''),
+    keywords: parseKeywords(data.keywords),
+    updatedAt: toMillis(data.updatedAt),
+  };
+}
+
+/** Same semantics as `fetchCoursesFromFirestore`: empty emulator → `null`. */
+export function finalizeRemoteCourseList(courses: RemoteCourse[]): RemoteCourse[] | null {
+  courses.sort((a, b) => a.id - b.id);
+  if (courses.length === 0 && isUsingFirestoreEmulator()) {
+    return null;
+  }
+  return courses;
+}
+
 /**
  * Reads all documents from `courses`. On any failure returns `null` (caller falls back to mocks).
  */
@@ -82,35 +119,45 @@ export async function fetchCoursesFromFirestore(): Promise<RemoteCourse[] | null
     const courses: RemoteCourse[] = [];
 
     for (const docSnap of snap.docs) {
-      const data = docSnap.data() as Record<string, unknown>;
-      const idFromField = asNumber(data.id, Number.NaN);
-      const idFromDoc = Number(docSnap.id);
-      const id = Number.isFinite(idFromField) ? idFromField : Number.isFinite(idFromDoc) ? idFromDoc : Number.NaN;
-      if (!Number.isFinite(id)) continue;
-
-      courses.push({
-        id,
-        title: asString(data.title, 'Untitled'),
-        description: asString(data.description, ''),
-        previewImageUrl: asString(data.previewImageUrl ?? data.previewUrl, ''),
-        likes: asNumber(data.likes, 0),
-        dislikes: asNumber(data.dislikes, 0),
-        tests: parseTests(data.tests),
-        category: asString(data.category, ''),
-        keywords: parseKeywords(data.keywords),
-        updatedAt: toMillis(data.updatedAt),
-      });
+      const mapped = mapCourseDocToRemote(docSnap);
+      if (mapped) courses.push(mapped);
     }
 
-    courses.sort((a, b) => a.id - b.id);
-
-    // Пустой эмулятор (второй процесс java, не тот порт, не залили сид) — не показываем пустой каталог.
-    if (courses.length === 0 && isUsingFirestoreEmulator()) {
-      return null;
-    }
-
-    return courses;
+    return finalizeRemoteCourseList(courses);
   } catch {
     return null;
   }
+}
+
+/**
+ * Live subscription to `courses`. Invokes `onData` with the mapped list (or `null` when empty emulator / identical rules as fetch).
+ */
+export function subscribeCoursesFromFirestore(
+  onData: (courses: RemoteCourse[] | null) => void,
+  onError?: (error: Error) => void
+): () => void {
+  const app = getFirebaseApp();
+  if (!app) {
+    onData(null);
+    return () => {};
+  }
+
+  const db = getFirestoreDb(app);
+  const colRef = collection(db, 'courses');
+
+  return onSnapshot(
+    colRef,
+    (snap) => {
+      const courses: RemoteCourse[] = [];
+      for (const docSnap of snap.docs) {
+        const mapped = mapCourseDocToRemote(docSnap);
+        if (mapped) courses.push(mapped);
+      }
+      onData(finalizeRemoteCourseList(courses));
+    },
+    (err) => {
+      onError?.(err instanceof Error ? err : new Error(String(err)));
+      onData(null);
+    }
+  );
 }

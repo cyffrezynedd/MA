@@ -40,7 +40,7 @@ function ratingCounts(baseLikes: number, baseDislikes: number, vote: CourseVote 
 
 export default function CatalogScreen() {
   const { t } = useTranslation();
-  const { courses, loading, refreshing, refresh } = useCatalogCourses();
+  const { courses, loading, refreshing, refresh, showCloudSignInHint } = useCatalogCourses();
   const brand3 = useThemeColor({}, 'brand3');
   const border = useThemeColor({}, 'border');
   const muted = useThemeColor({}, 'muted');
@@ -140,6 +140,8 @@ export default function CatalogScreen() {
           <ThemedText type="title">{t('catalog.title')}</ThemedText>
           {!isFirebaseConfigured() ? (
             <ThemedText style={[styles.mockHint, { color: muted }]}>{t('catalog.mockHint')}</ThemedText>
+          ) : showCloudSignInHint ? (
+            <ThemedText style={[styles.mockHint, { color: muted }]}>{t('catalog.signInForLiveCloud')}</ThemedText>
           ) : null}
         </View>
       </View>

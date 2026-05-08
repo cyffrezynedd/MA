@@ -10,7 +10,9 @@ import { Image } from 'expo-image';
 
 import { Colors } from '@/constants/theme';
 import { AppProvider, useApp } from '@/providers/app-provider';
+import { AuthProvider, useAuth } from '@/providers/auth-provider';
 import { i18n } from '@/lib/i18n/i18n';
+import { isFirebaseConfigured } from '@/lib/firebase/app';
 import { ensureNotificationPresentationHandler } from '@/lib/notifications/channels';
 
 /** Минимум показа boot-экрана при холодном старте (мс). */
@@ -24,7 +26,9 @@ export default function RootLayout() {
   return (
     <I18nextProvider i18n={i18n}>
       <AppProvider>
-        <AppShell />
+        <AuthProvider>
+          <AppShell />
+        </AuthProvider>
       </AppProvider>
     </I18nextProvider>
   );
@@ -34,6 +38,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function AppShell() {
   const { ready, resolvedColorScheme } = useApp();
+  const { user, loading: authLoading } = useAuth();
   const [minBootDone, setMinBootDone] = useState(false);
 
   useEffect(() => {
@@ -45,7 +50,9 @@ function AppShell() {
     return () => clearTimeout(t);
   }, []);
 
-  const showBoot = !ready || !minBootDone;
+  const waitingFirebaseAuth = isFirebaseConfigured() && authLoading;
+  const showBoot = !ready || !minBootDone || waitingFirebaseAuth;
+  const requireLogin = isFirebaseConfigured() && !authLoading && !user;
 
   if (!showBoot) {
     SplashScreen.hideAsync().catch(() => {});
@@ -65,6 +72,10 @@ function AppShell() {
             />
           </View>
         </View>
+      ) : requireLogin ? (
+        <Stack screenOptions={{ contentStyle: { backgroundColor: bg } }}>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        </Stack>
       ) : (
         <Stack screenOptions={{ contentStyle: { backgroundColor: bg } }}>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

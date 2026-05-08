@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
+import * as Linking from 'expo-linking';
 import { useTranslation } from 'react-i18next';
 
 import { Screen } from '@/components/ui/screen';
 import { Card } from '@/components/ui/card';
-import { PrimaryButton } from '@/components/ui/button';
+import { PrimaryButton, SoftButton } from '@/components/ui/button';
 import { webHiddenScrollbarStyle } from '@/components/ui/scrollbar-hidden';
 import { ThemedText } from '@/components/themed-text';
 import { ProgressGopher } from '@/components/ui/progress-gopher';
@@ -21,6 +22,7 @@ import {
   setLastTestsCourseId,
 } from '@/lib/mocks/course-progress';
 import { listNotes, type CourseNote } from '@/lib/db/notes';
+import { buildTelegramShareUrl } from '@/lib/share/telegram-share';
 
 export default function CourseDetails() {
   const { t, i18n } = useTranslation();
@@ -98,6 +100,18 @@ export default function CourseDetails() {
     [i18n.language]
   );
 
+  const shareCourseInTelegram = useCallback(async () => {
+    if (!course || !Number.isFinite(courseId)) return;
+    const link = Linking.createURL(`/course/${courseId}`);
+    const text = [course.title, course.description.trim().slice(0, 200)].filter(Boolean).join('\n\n');
+    const tgUrl = buildTelegramShareUrl(text, link);
+    try {
+      await Linking.openURL(tgUrl);
+    } catch {
+      /* no handler for https */
+    }
+  }, [course, courseId]);
+
   const toggleTest = async (testId: string) => {
     const next = completedTests.includes(testId)
       ? completedTests.filter((tid) => tid !== testId)
@@ -117,6 +131,14 @@ export default function CourseDetails() {
         <ThemedText type="title" style={styles.courseTitle}>
           {title}
         </ThemedText>
+
+        {course ? (
+          <SoftButton
+            title={t('courseScreen_shareTelegram')}
+            onPress={() => void shareCourseInTelegram()}
+            style={styles.shareBtn}
+          />
+        ) : null}
 
         {course ? (
           <>
@@ -213,6 +235,7 @@ export default function CourseDetails() {
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
   courseTitle: { flexShrink: 1, lineHeight: 42 },
+  shareBtn: { alignSelf: 'stretch' },
   content: { flexGrow: 0, gap: 12, paddingBottom: 16 },
   editLocalBtn: { alignSelf: 'stretch', marginBottom: 4 },
   videoCard: { gap: 10 },

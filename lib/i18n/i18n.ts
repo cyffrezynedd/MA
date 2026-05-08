@@ -18,6 +18,26 @@ const resources = {
         goHub: 'Go в GitHub',
         settings: 'Настройки',
       },
+      auth: {
+        loginTitle: 'Вход в аккаунт',
+        registerTitle: 'Регистрация',
+        emailPlaceholder: 'Email',
+        passwordPlaceholder: 'Пароль',
+        signIn: 'Войти',
+        signUp: 'Зарегистрироваться',
+        goRegister: 'Создать новый аккаунт →',
+        goLogin: '← Уже зарегистрированы? Войти',
+        signOut: 'Выйти из аккаунта',
+        createAccountCta: 'Регистрация',
+        biometricLogin: 'Войти по Face ID / отпечатку',
+        biometricUnavailable: 'Биометрия недоступна или нет сохранённого входа.',
+        biometricSaveTitle: 'Сохранить для быстрого входа?',
+        biometricSaveMessage:
+          'Логин и пароль будут записаны в защищённое хранилище устройства и использоваться только после Face ID / отпечатка. Учебный режим ЛР4.',
+        biometricSaveYes: 'Сохранить',
+        biometricSaveNo: 'Не сейчас',
+        biometricPrompt: 'Подтвердите личность для входа',
+      },
       settings: {
         title: 'Настройки',
         theme: 'Тема',
@@ -29,6 +49,11 @@ const resources = {
           light: 'Светлая',
           dark: 'Тёмная',
         },
+        accountSection: 'Аккаунт',
+        biometricClearCta: 'Забыть сохранённый вход (биометрия)',
+        biometricClearHint:
+          'Удаляет пару email/пароль из защищённого хранилища. Следующий вход — только вручную.',
+        biometricClearConfirm: 'Очистить',
       },
       catalog: {
         title: 'Каталог курсов',
@@ -51,6 +76,8 @@ const resources = {
         a11yLike: 'Лайк',
         a11yDislike: 'Дизлайк',
         refreshingHint: 'Обновление каталога для проверки новых курсов',
+        signInForLiveCloud:
+          'Чтобы видеть каталог из Firestore в реальном времени, войдите в аккаунт (ЛР4). Пока показаны учебные моки.',
       },
       status: {
         planned: 'План',
@@ -81,11 +108,7 @@ const resources = {
       },
       /** Экран курса — плоские ключи (надёжнее nested при сборке web) */
       courseScreen_tests: 'Тесты курса',
-      courseScreen_noTests: 'У этого курса нет тестов — это локальная запись (ЛР1) или контент без поля tests.',
-      courseScreen_testTake: 'Пройти',
-      courseScreen_testPassed: 'Пройдено',
-      courseScreen_notePlaceholder: 'Заметка по курсу…',
-      courseScreen_notFound: 'Курс не найден',
+      courseScreen_shareTelegram: 'Поделиться в Telegram',
       notesScreen_emptyList: 'Заметок пока нет',
       noteDetail: {
         title: 'Заметка',
@@ -138,6 +161,26 @@ const resources = {
         goHub: 'GitHub',
         settings: 'Settings',
       },
+      auth: {
+        loginTitle: 'Sign in',
+        registerTitle: 'Register',
+        emailPlaceholder: 'Email',
+        passwordPlaceholder: 'Password',
+        signIn: 'Sign in',
+        signUp: 'Sign up',
+        goRegister: 'Create a new account →',
+        goLogin: '← Already registered? Sign in',
+        signOut: 'Sign out',
+        createAccountCta: 'Register',
+        biometricLogin: 'Sign in with Face ID / fingerprint',
+        biometricUnavailable: 'Biometrics unavailable or no saved sign-in.',
+        biometricSaveTitle: 'Save for quick sign-in?',
+        biometricSaveMessage:
+          'Email and password are stored in the device secure store and used only after Face ID / fingerprint. Lab-only mode.',
+        biometricSaveYes: 'Save',
+        biometricSaveNo: 'Not now',
+        biometricPrompt: 'Confirm your identity to sign in',
+      },
       settings: {
         title: 'Settings',
         theme: 'Theme',
@@ -149,6 +192,11 @@ const resources = {
           light: 'Light',
           dark: 'Dark',
         },
+        accountSection: 'Account',
+        biometricClearCta: 'Forget saved sign-in (biometrics)',
+        biometricClearHint:
+          'Removes the email/password pair from secure storage. Next sign-in must be manual.',
+        biometricClearConfirm: 'Clear',
       },
       catalog: {
         title: 'Courses catalog',
@@ -171,6 +219,8 @@ const resources = {
         a11yLike: 'Like',
         a11yDislike: 'Dislike',
         refreshingHint: 'Refresh catalog to pick up new courses',
+        signInForLiveCloud:
+          'Sign in to stream the Firestore catalog in realtime (lab 4). Demo mocks are shown until then.',
       },
       status: {
         planned: 'Planned',
@@ -206,6 +256,7 @@ const resources = {
       courseScreen_testPassed: 'Completed',
       courseScreen_notePlaceholder: 'Course note…',
       courseScreen_notFound: 'Course not found',
+      courseScreen_shareTelegram: 'Share in Telegram',
       notesScreen_emptyList: 'No notes yet',
       noteDetail: {
         title: 'Note',

@@ -7,11 +7,16 @@ import {
   setSessionCatalogCourses,
   type CatalogCourseItem,
 } from '@/lib/catalog/catalog-session';
-import { fetchCoursesFromFirestore, type RemoteCourse } from '@/lib/catalog/firestore-courses';
+import {
+  fetchCoursesFromFirestore,
+  subscribeCoursesFromFirestore,
+  type RemoteCourse,
+} from '@/lib/catalog/firestore-courses';
 import { listCourses } from '@/lib/db/courses';
 import { isFirebaseConfigured } from '@/lib/firebase/app';
 import { MOCK_COURSES, getMockCourseById } from '@/lib/mocks/courses';
 import { ensureCatalogNotificationChannel, requestNotificationPermissions } from '@/lib/notifications/channels';
+import { useAuth } from '@/providers/auth-provider';
 
 const FALLBACK_PREVIEW = require('@/assets/images/sticker_like.png');
 
@@ -63,12 +68,16 @@ export type UseCatalogCoursesResult = {
   /** Потянуть каталог вниз: повторный запрос Firestore + проверка новых id → уведомление. */
   refreshing: boolean;
   refresh: () => Promise<void>;
+  /** Firebase включён, пользователь не вошёл — показаны моки; можно подсказать вход для облака. */
+  showCloudSignInHint: boolean;
 };
 
 export function useCatalogCourses(): UseCatalogCoursesResult {
+  const { user } = useAuth();
   const [courses, setCourses] = useState<CatalogCourseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showCloudSignInHint, setShowCloudSignInHint] = useState(false);
   const notificationsPrimedRef = useRef(false);
   const catalogBaseRef = useRef<CatalogCourseItem[]>([]);
 
@@ -127,9 +136,11 @@ export function useCatalogCourses(): UseCatalogCoursesResult {
 
   useEffect(() => {
     let cancelled = false;
+    let unsubscribeFirestore: (() => void) | undefined;
 
     (async () => {
       if (!isFirebaseConfigured()) {
+        setShowCloudSignInHint(false);
         const base = MOCK_COURSES.map(mockToCatalogItem);
         catalogBaseRef.current = base;
         const mapped = await withLocalCourses(base);
@@ -141,19 +152,45 @@ export function useCatalogCourses(): UseCatalogCoursesResult {
         return;
       }
 
+      if (!user) {
+        setShowCloudSignInHint(true);
+        const base = MOCK_COURSES.map(mockToCatalogItem);
+        catalogBaseRef.current = base;
+        const mapped = await withLocalCourses(base);
+        if (!cancelled) {
+          setCourses(mapped);
+          setSessionCatalogCourses(mapped);
+          setLoading(false);
+        }
+        return;
+      }
+
+      setShowCloudSignInHint(false);
       setLoading(true);
-      const remote = await fetchCoursesFromFirestore();
 
-      if (cancelled) return;
-
-      await applyRemoteOrMocks(remote);
-      if (!cancelled) setLoading(false);
+      unsubscribeFirestore = subscribeCoursesFromFirestore(
+        (remote) => {
+          if (cancelled) return;
+          void (async () => {
+            await applyRemoteOrMocks(remote);
+            if (!cancelled) setLoading(false);
+          })();
+        },
+        () => {
+          if (cancelled) return;
+          void (async () => {
+            await applyRemoteOrMocks(null);
+            if (!cancelled) setLoading(false);
+          })();
+        }
+      );
     })();
 
     return () => {
       cancelled = true;
+      unsubscribeFirestore?.();
     };
-  }, [applyRemoteOrMocks]);
+  }, [applyRemoteOrMocks, user]);
 
-  return { courses, loading, refreshing, refresh };
+  return { courses, loading, refreshing, refresh, showCloudSignInHint };
 }

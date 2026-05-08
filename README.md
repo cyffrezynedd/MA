@@ -2,6 +2,19 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+**Правила Firestore (ЛР4):** чтение коллекции `courses` разрешено только **вошедшим** пользователям (`request.auth != null`). После изменения `firestore.rules` выполните **`npm run deploy:firestore-rules`**. Сид каталога (`npm run seed:firestore`) по-прежнему выполняется **записью без входа** (`allow create, update: if true`). Удаление тестового документа `courses/99999` сохранено.
+
+### Лабораторная работа 4 — проверка
+
+1. В [Firebase Console](https://console.firebase.google.com) → **Authentication** → **Sign-in method** включите **Email/Password**.
+2. Заполните `.env` (`EXPO_PUBLIC_FIREBASE_*`), **`npm run firebase:check`**, задеплойте правила (**`npm run deploy:firestore-rules`**).
+3. Запустите приложение: при настроенном Firebase появится экран **Вход / Регистрация**. После входа каталог подписан на **`courses`** через **`onSnapshot`** (обновления без ручного refresh).
+4. Вкладка **«Устройство»**: геолокация, акселерометр, камера (на устройстве или эмуляторе; на вебе часть функций недоступна).
+5. Экран курса: кнопка **«Поделиться»** (`Share`) с заголовком и ссылкой вида `gocourseslab://…`.
+6. Выход: **Настройки** → **Выйти из аккаунта** (если Firebase включён).
+
+**Эмулятор Firestore без Auth Emulator:** приложение не прочитает `courses` без входа в реальный Firebase Auth; для чисто локального эмулятора временно ослабьте правило `read` или поднимите Auth Emulator.
+
 ## Firebase — только облако (Google Firestore)
 
 1. [Firebase Console](https://console.firebase.google.com): проект → **Firestore** → создать БД.

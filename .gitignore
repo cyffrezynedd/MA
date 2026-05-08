@@ -43,3 +43,6 @@ app-example
 /ios
 /android
 /scripts
+
+# multi-agent pipeline artifacts (orchestrator)
+docs/implementation/
